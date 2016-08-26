@@ -1,0 +1,80 @@
+---
+title: "nces_themes"
+author: "Michael Lee"
+date: "August 23, 2016"
+output: html_document
+---
+<br>
+
+#### Indicators of School Crime and Safety: 2015
+[link](http://nces.ed.gov/pubsearch/pubsinfo.asp?pubid=2016079)
+```{r setup}
+library(ggplot2)
+library(scales)
+library(tidyr)
+library(showtext)
+library(dplyr)
+library(lubridate)
+dest2 <- file.path(tempdir(), "open-sans.regular.ttf")
+download.file("http://ff.static.1001fonts.net/o/p/open-sans.regular.ttf", dest2, mode = "wb")
+font.add("regular", regular = dest2)
+
+dest <- file.path(tempdir(), "source-code-pro.regular.ttf")
+download.file("http://ff.static.1001fonts.net/s/o/source-code-pro.regular.ttf", dest, mode = "wb")
+font.add("source-code", regular = dest)
+
+font.add.google("Work Sans", "work")
+# Confirm semibold has been added
+font.families()
+showtext.auto()
+```
+
+```{r read}
+res <- read.csv("G:/nces_theme/residential.csv",stringsAsFactors = FALSE)
+colnames(res) <- c('Race', '1997', '1999','2001','2003','2006','2007','2010','2011','2013')
+res <- res %>% gather(Race, key= "Year")
+colnames(res)[3] <- "Value"
+res$Race <- as.factor(unique(res$Race))
+res$Year <- as.Date(res$Year,"%Y")
+# res$Year <- as.POSIXct(res$Year, origin="1970-01-01")
+
+gg <- ggplot(res, aes(x = Year, y = Value, group = Race, color=Race)) + geom_line() + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
+
+```
+
+```{r theme1}
+gg <- gg + theme_minimal(base_family="work")
+gg <- gg + labs(x=NULL, y=NULL, title = "Average scale scores for mathematics, grade 4 by all students [TOTAL],\n year and jurisdiction: 2015", caption = "NOTE: The NAEP mathematics scale ranges from 0-500.")
+gg <- gg + theme(panel.grid=element_line(),
+                 panel.grid.major.y=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
+                 panel.grid.major.x=element_blank(),
+                 panel.grid.minor.x=element_blank(),
+                 panel.grid.minor.y=element_blank(),
+                 axis.line=element_line(),
+                 axis.line.x=element_blank(),
+                 axis.text=element_text(family="work"),
+                 axis.ticks=element_line(),
+                 axis.ticks.x=element_line(color="#2b2b2b", size=0.15),
+                 axis.ticks.y=element_blank(),
+                 axis.ticks.length=unit(5, "pt"),
+                 plot.margin=unit(rep(0.5, 4), "cm"),
+                 axis.text.y=element_text(margin=margin(r=-5)),
+                 plot.title=element_text(family="work", margin=margin(b=15)),
+                 plot.subtitle=element_text(family="work"),
+                 plot.caption=element_text(size=8, hjust=0, margin=margin(t=15)),
+                 legend.text=element_text(family="work"))
+gg
+```
+
+```{r read}
+res <- read.csv("G:/nces_theme/children.csv")
+colnames(res) <- c('Race', '1997', '1999','2001','2003','2006','2007','2010','2011','2013')
+res <- res %>% gather(Race, key= "Year")
+colnames(res)[3] <- "Value"
+res$Race <- as.factor(unique(res$Race))
+res$Year <- as.Date(res$Year,"%Y")
+# res$Year <- as.POSIXct(res$Year, origin="1970-01-01")
+
+gg <- ggplot(res, aes(x = Year, y = Value, group = Race, color=Race)) + geom_line() + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
+
+```
