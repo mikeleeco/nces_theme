@@ -6,8 +6,7 @@ output: html_document
 ---
 <br>
 
-#### Indicators of School Crime and Safety: 2015
-[link](http://nces.ed.gov/pubsearch/pubsinfo.asp?pubid=2016079)
+
 ```{r setup}
 library(ggplot2)
 library(scales)
@@ -15,22 +14,26 @@ library(tidyr)
 library(showtext)
 library(dplyr)
 library(lubridate)
-dest2 <- file.path(tempdir(), "open-sans.regular.ttf")
-download.file("http://ff.static.1001fonts.net/o/p/open-sans.regular.ttf", dest2, mode = "wb")
-font.add("regular", regular = dest2)
-
-dest <- file.path(tempdir(), "source-code-pro.regular.ttf")
-download.file("http://ff.static.1001fonts.net/s/o/source-code-pro.regular.ttf", dest, mode = "wb")
-font.add("source-code", regular = dest)
-
-font.add.google("Work Sans", "work")
-# Confirm semibold has been added
-font.families()
-showtext.auto()
+library(tweenr)
+library(gganimate)
+library(animation)
+# dest2 <- file.path(tempdir(), "open-sans.regular.ttf")
+# download.file("http://ff.static.1001fonts.net/o/p/open-sans.regular.ttf", dest2, mode = "wb")
+# font.add("regular", regular = dest2)
+# 
+# dest <- file.path(tempdir(), "source-code-pro.regular.ttf")
+# download.file("http://ff.static.1001fonts.net/s/o/source-code-pro.regular.ttf", dest, mode = "wb")
+# font.add("source-code", regular = dest)
+# 
+# font.add.google("Work Sans", "work")
+# # Confirm semibold has been added
+# font.families()
+# showtext.auto()
 ```
-
+#### Indicators of School Crime and Safety: 2015
+[link](http://nces.ed.gov/pubsearch/pubsinfo.asp?pubid=2016079)
 ```{r read}
-res <- read.csv("G:/nces_theme/residential.csv",stringsAsFactors = FALSE)
+res <- read.csv("residential.csv",stringsAsFactors = FALSE)
 colnames(res) <- c('Race', '1997', '1999','2001','2003','2006','2007','2010','2011','2013')
 res <- res %>% gather(Race, key= "Year")
 colnames(res)[3] <- "Value"
@@ -44,43 +47,140 @@ gg <- ggplot(res, aes(x = Year, y = Value, group = Race, color=Race)) + geom_lin
 
 ```{r theme1}
 gg <- gg + theme_minimal(base_family="work")
-gg <- gg + labs(x=NULL, y=NULL, title = "Average scale scores for mathematics, grade 4 by all students [TOTAL],\n year and jurisdiction: 2015", caption = "NOTE: The NAEP mathematics scale ranges from 0-500.")
-gg <- gg + theme(panel.grid=element_line(),
+gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculatedper 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
+theme1 <- theme(text=element_text(family="work"),
+                 panel.background=element_blank(),
                  panel.grid.major.y=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
-                 panel.grid.major.x=element_blank(),
+                 panel.grid.major.x=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
                  panel.grid.minor.x=element_blank(),
                  panel.grid.minor.y=element_blank(),
-                 axis.line=element_line(),
-                 axis.line.x=element_blank(),
-                 axis.text=element_text(family="work"),
+                 # axis.line=element_line(),
+                 # axis.line.x=element_blank(),
+                 # axis.text=element_text(family="work"),
                  axis.ticks=element_line(),
-                 axis.ticks.x=element_line(color="#2b2b2b", size=0.15),
+                 axis.ticks.x=element_blank(),
                  axis.ticks.y=element_blank(),
-                 axis.ticks.length=unit(5, "pt"),
+                 # axis.ticks.length=unit(5, "pt"),
                  plot.margin=unit(rep(0.5, 4), "cm"),
                  axis.text.y=element_text(margin=margin(r=-5)),
                  plot.title=element_text(family="work", margin=margin(b=15)),
-                 plot.subtitle=element_text(family="work"),
+                 # plot.subtitle=element_text(family="work"),
                  plot.caption=element_text(size=8, hjust=0, margin=margin(t=15)),
-                 legend.text=element_text(family="work"))
-gg
+                 # legend.text=element_text(family="work"),
+                 legend.background=element_blank(),
+                 legend.key=element_blank(),
+                 legend.position= "bottom")
+gg + theme1
 ```
-
+#### Not sure what the title is
+[link](http://nces.ed.gov/pubsearch/pubsinfo.asp?pubid=2016079)
 ```{r read children}
-res <- read.csv("G:/nces_theme/children.csv")
-res$Race <- factor(res$Race, levels = c("White, non-Hispanic", "Black, non-Hispanic", "Hispanic"), labels = c("White, NH","Black, NH", "Hispanic"))
-res$Structure <- factor(res$Structure, levels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"), labels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"))
-gg <- ggplot(res, aes(x = Structure, y = Percentage, fill = Race)) + geom_bar(stat="identity",position = position_dodge(width = 0.75), width=0.6)
-
+res2 <- read.csv("children.csv")
+res2$Race <- factor(res2$Race, levels = c("White, non-Hispanic", "Black, non-Hispanic", "Hispanic"), labels = c("White, NH","Black, NH", "Hispanic"))
+res2$Structure <- factor(res2$Structure, levels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"), labels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"))
+gg <- ggplot(res2, aes(x = Structure, y = Percentage, fill = Race)) + geom_bar(stat="identity",position = position_dodge(width = 0.75), width=0.6)
+gg+ theme1
 ```
 
-
+#### Education at a Glance - OECD: 2015
+[link](http://nces.ed.gov/pubsearch/pubsinfo.asp?pubid=2016079)
 ```{r read expenditure}
-res <- read.csv("G:/nces_theme/expenditure.csv", stringsAsFactors = FALSE)
-res$Change <- res$Change - 100
-# res$Race <- factor(res$Race, levels = c("White, non-Hispanic", "Black, non-Hispanic", "Hispanic"), labels = c("White, NH","Black, NH", "Hispanic"))
+res3 <- read.csv("expenditure.csv", stringsAsFactors = FALSE)
+res3$Change <- res3$Change - 100
+# res3$Race <- factor(res$Race, levels = c("White, non-Hispanic", "Black, non-Hispanic", "Hispanic"), labels = c("White, NH","Black, NH", "Hispanic"))
 # res$Structure <- factor(res$Structure, levels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"), labels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"))
-gg <- ggplot(res, aes(x = Change, y = Expenditure)) + geom_point(shape = 23, color = "blue", size = 2) +
+gg <- ggplot(res3, aes(x = Change, y = Expenditure)) + geom_point(shape = 23, color = "blue", size = 2) +
           geom_smooth(method=lm, se=FALSE,linetype = "dashed", color = "black")
-gg + theme_light()
+gg + theme1
 ```
+
+```{r tweenr}
+#add the "US" at the top and the bottomw of the list of states 
+states2<-factor(unique((res$Year)))
+
+# function to create list of data sets from our data (by state)
+myf<-function(mystate){as.data.frame(res[res$Year==as.Date(mystate),])}
+
+# use lapply to generate the list of data sets:
+my.list2<-lapply(states2,myf)
+
+# Apply tweenr:
+
+tf <- tween_states(my.list2, tweenlength= 2, statelength=3, ease="linear",nframes=200)
+tf$Race <- as.factor(unique(tf$Race))
+tf$Year <- as.Date(tf$Year,"%Y")
+# tf$Year <- as.POSIXct(tf$Year, origin="1970-01-01")
+# dtf<-data.frame(tf)
+# 
+# gg <- ggplot(tf, aes(x = Year, y = Value, color=Race,group=Race,frame=.frame)) + geom_line(aes(group=Race, color=Race)) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year))
+# 
+# gg_animate(gg, title_frame = F, ani.width = 600, ani.height = 450, interval=0.05)
+
+```
+
+
+```{r knitr animation hooks}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "nces_theme_files/figure-html/",
+  cache.path = "nces_theme_files/figure-html/"
+)
+
+library(knitr)
+ani.options(autobrowse = FALSE)
+
+opts_knit$set(animation.fun = function(x, options, format = "gif") {
+  x = c(knitr:::sans_ext(x), knitr:::file_ext(x))
+  fig.num = options$fig.num
+  format = sub("^[.]", "", format)
+  fig.fname = paste0(sub(paste0(fig.num, "$"), "*", x[1]), 
+                     ".", x[2])
+  mov.fname = paste0(sub(paste0(fig.num, "$"), "", x[1]), ".", 
+                     format)
+
+  # order correctly
+  figs <- Sys.glob(fig.fname)
+  figs <- figs[order(as.numeric(stringr::str_match(figs, paste0("(\\d+)\\.", x[2]))[, 2]))]
+
+  animation::im.convert(figs, output = mov.fname)
+
+  sprintf("![%s](%s)", options$label, paste0(opts_knit$get("base.url"), mov.fname))
+})
+
+opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.show = "animate")
+```
+
+```{r ex}
+
+gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE)) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
+
+gg <- gg + theme_minimal(base_family="work")
+gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculatedper 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
+theme1 <- theme(text=element_text(family="work"),
+                 panel.background=element_blank(),
+                 panel.grid.major.y=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
+                 panel.grid.major.x=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
+                 panel.grid.minor.x=element_blank(),
+                 panel.grid.minor.y=element_blank(),
+                 # axis.line=element_line(),
+                 # axis.line.x=element_blank(),
+                 # axis.text=element_text(family="work"),
+                 axis.ticks=element_line(),
+                 axis.ticks.x=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 # axis.ticks.length=unit(5, "pt"),
+                 plot.margin=unit(rep(0.5, 4), "cm"),
+                 axis.text.y=element_text(margin=margin(r=-5)),
+                 plot.title=element_text(family="work", margin=margin(b=15)),
+                 # plot.subtitle=element_text(family="work"),
+                 plot.caption=element_text(size=8, hjust=0, margin=margin(t=15)),
+                 # legend.text=element_text(family="work"),
+                 legend.background=element_blank(),
+                 legend.key=element_blank())
+gg <- gg + theme1
+ani.options(loop = TRUE)
+gg_animate(gg,"ex.gif", interval = .05,pause = .05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+# gg_animate(gg,"nces_theme_files/figure-html/ex.gif", interval = .05,pause = .05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+```
+
