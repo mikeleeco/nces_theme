@@ -8,31 +8,37 @@ output: html_document
 
 
 ```{r setup}
-library(ggplot2)
+library(ggplot2) # devtools::install_github("hadley/ggplot2")
 library(scales)
 library(tidyr)
 library(showtext)
 library(dplyr)
 library(lubridate)
 library(tweenr)
-library(gganimate)
+library(gganimate) # devtools::install_github("dgrtwo/gganimate")
 library(animation)
-# dest2 <- file.path(tempdir(), "open-sans.regular.ttf")
-# download.file("http://ff.static.1001fonts.net/o/p/open-sans.regular.ttf", dest2, mode = "wb")
-# font.add("regular", regular = dest2)
-# 
-# dest <- file.path(tempdir(), "source-code-pro.regular.ttf")
-# download.file("http://ff.static.1001fonts.net/s/o/source-code-pro.regular.ttf", dest, mode = "wb")
-# font.add("source-code", regular = dest)
-# 
-# font.add.google("Work Sans", "work")
-# # Confirm semibold has been added
-# font.families()
-# showtext.auto()
+dest2 <- file.path(tempdir(), "open-sans.regular.ttf")
+download.file("http://ff.static.1001fonts.net/o/p/open-sans.regular.ttf", dest2, mode = "wb")
+font.add("regular", regular = dest2)
+
+dest <- file.path(tempdir(), "source-code-pro.regular.ttf")
+download.file("http://ff.static.1001fonts.net/s/o/source-code-pro.regular.ttf", dest, mode = "wb")
+font.add("source-code", regular = dest)
+
+dest3 <- file.path(tempdir(), "Avalon.ttf")
+download.file("http://fontsup.com/download/11189.html", dest3, mode = "wb")
+font.add("Avalon", regular = dest3)
+
+
+font.add.google("Work Sans", "work")
+# Confirm semibold has been added
+font.families()
+showtext.auto()
 ```
 #### Indicators of School Crime and Safety: 2015
 [link](http://nces.ed.gov/pubsearch/pubsinfo.asp?pubid=2016079)
 ```{r read}
+# setwd("G:/nces_theme")
 res <- read.csv("residential.csv",stringsAsFactors = FALSE)
 colnames(res) <- c('Race', '1997', '1999','2001','2003','2006','2007','2010','2011','2013')
 res <- res %>% gather(Race, key= "Year")
@@ -41,13 +47,13 @@ res$Race <- as.factor(unique(res$Race))
 res$Year <- as.Date(res$Year,"%Y")
 # res$Year <- as.POSIXct(res$Year, origin="1970-01-01")
 
-gg <- ggplot(res, aes(x = Year, y = Value, group = Race, color=Race)) + geom_line() + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
+gg <- ggplot(res, aes(x = Year, y = Value, group = Race, color=Race)) + geom_line(size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year))
 
 ```
 
 ```{r theme1}
 gg <- gg + theme_minimal(base_family="work")
-gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculatedper 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
+gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculated per 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
 theme1 <- theme(text=element_text(family="work"),
                  panel.background=element_blank(),
                  panel.grid.major.y=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
@@ -153,34 +159,100 @@ opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.show = "anima
 
 ```{r ex}
 
-gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE)) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
+gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
 
-gg <- gg + theme_minimal(base_family="work")
+# gg <- gg + theme_minimal(base_family="work")
 gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculatedper 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
-theme1 <- theme(text=element_text(family="work"),
-                 panel.background=element_blank(),
-                 panel.grid.major.y=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
-                 panel.grid.major.x=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
-                 panel.grid.minor.x=element_blank(),
-                 panel.grid.minor.y=element_blank(),
-                 # axis.line=element_line(),
-                 # axis.line.x=element_blank(),
-                 # axis.text=element_text(family="work"),
-                 axis.ticks=element_line(),
-                 axis.ticks.x=element_blank(),
-                 axis.ticks.y=element_blank(),
-                 # axis.ticks.length=unit(5, "pt"),
-                 plot.margin=unit(rep(0.5, 4), "cm"),
-                 axis.text.y=element_text(margin=margin(r=-5)),
-                 plot.title=element_text(family="work", margin=margin(b=15)),
-                 # plot.subtitle=element_text(family="work"),
-                 plot.caption=element_text(size=8, hjust=0, margin=margin(t=15)),
-                 # legend.text=element_text(family="work"),
-                 legend.background=element_blank(),
-                 legend.key=element_blank())
-gg <- gg + theme1
-ani.options(loop = TRUE)
-gg_animate(gg,"ex.gif", interval = .05,pause = .05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
-# gg_animate(gg,"nces_theme_files/figure-html/ex.gif", interval = .05,pause = .05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+
 ```
 
+```{r themes}
+theme_white <- theme(text=element_text(family="work"),
+                panel.background=element_blank(),
+                panel.grid.major.y=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
+                panel.grid.major.x=element_line(color="#2b2b2b", linetype="dotted", size=0.15),
+                panel.grid.minor.x=element_blank(),
+                panel.grid.minor.y=element_blank(),
+                # axis.line=element_line(),
+                # axis.line.x=element_blank(),
+                # axis.text=element_text(family="work"),
+                axis.ticks=element_line(),
+                axis.ticks.x=element_blank(),
+                axis.ticks.y=element_blank(),
+                # axis.ticks.length=unit(5, "pt"),
+                plot.margin=unit(rep(0.5, 4), "cm"),
+                # axis.text.y=element_text(margin=margin(r=-5)),
+                plot.title=element_text(family="work", margin=margin(b=15)),
+                # plot.subtitle=element_text(family="work"),
+                plot.caption=element_text(size=8, hjust=0, margin=margin(t=15)),
+                # legend.text=element_text(family="work"),
+                legend.background=element_blank(),
+                legend.key=element_rect(fill="white",colour = "white"),
+                legend.position= "right")
+gg + theme_white
+
+theme_color <- theme(text=element_text(family="Avalon"),
+                plot.background=element_blank(),
+                panel.grid.major.y=element_line(color="#E2E2E2", linetype="longdash", size=0.25),
+                panel.grid.major.x=element_line(color="#E2E2E2", linetype="longdash", size=0.25),
+                panel.grid.minor.x=element_blank(),
+                panel.grid.minor.y=element_blank(),
+                # axis.line=element_line(),
+                # axis.line.x=element_blank(),
+                # axis.text=element_text(family="Avalon"),
+                axis.ticks=element_line(),
+                axis.ticks.x=element_blank(),
+                # strip.background = element_rect(colour = 'purple', fill = 'pink', size = 3, linetype='dashed'),
+                axis.ticks.y=element_blank(),
+                # axis.ticks.length=unit(5, "pt"),
+                plot.margin=unit(rep(0.5, 4), "cm"),
+                axis.text.x=element_text(face = "bold"),
+                axis.text.y=element_text(face = "bold"),
+                plot.title=element_text(family="Avalon"),
+                # plot.subtitle=element_text(family="Avalon"),
+                 plot.caption=element_text(size=8, hjust=0, margin=margin(t=15)),
+                 # legend.text=element_text(family="work"),
+                legend.background=element_blank(),
+                legend.key=element_rect(fill="White",colour = "white"),
+                legend.position= "right")
+gg + theme_color
+
+theme_gray <- theme(
+                  axis.text = element_text(size = rel(0.8), colour = "black"), 
+                  strip.text = element_text(size = rel(0.8)), 
+                  axis.line = element_blank(), 
+                  axis.text.x = element_text(vjust = 1), 
+                  axis.text.y = element_text(hjust = 1), 
+                  axis.ticks = element_line(colour = "grey50"), 
+                  axis.title.x = element_text(face = "bold"), 
+                  axis.title.y = element_text(angle = 90, face = "bold"), 
+                  
+                  legend.background=element_blank(),
+                  legend.key=element_rect(fill="White",colour = "white"),
+                  legend.position= "right", 
+                  
+                  panel.background = element_rect(fill = "grey90", colour = NA), 
+                  panel.border = element_blank(), 
+                  panel.grid.major = element_line(colour = "white"), 
+                  panel.grid.minor = element_blank(), 
+                  panel.margin = unit(0.25, "lines"), 
+                  panel.margin.x = NULL, 
+                  panel.margin.y = NULL, 
+                  
+                  strip.background = element_rect(fill = "grey80", colour = NA), 
+                  strip.text.x = element_text(), 
+                  strip.text.y = element_text(angle = -90), 
+                  
+                  plot.background = element_rect(colour = "white"), 
+                  plot.title = element_text(size = rel(1.2), face = "bold"), 
+                  plot.margin = unit(c(1, 2, 0.5, 0.9), "lines"),
+                  plot.caption=element_text(size=8, hjust=0, margin=margin(t=15))
+
+                  )
+gg + theme_gray
+
+```
+
+```{r gganimate, eval = FALSE}
+gg_animate(gg,"line_tween.gif", interval = .05,pause = .05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+```
