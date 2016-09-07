@@ -84,8 +84,9 @@ gg + theme1
 res2 <- read.csv("children.csv")
 res2$Race <- factor(res2$Race, levels = c("White, non-Hispanic", "Black, non-Hispanic", "Hispanic"), labels = c("White, NH","Black, NH", "Hispanic"))
 res2$Structure <- factor(res2$Structure, levels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"), labels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"))
-gg <- ggplot(res2, aes(x = Structure, y = Percentage, fill = Race)) + geom_bar(stat="identity",position = position_dodge(width = 0.75), width=0.6)
-gg+ theme1
+gg2 <- ggplot(res2, aes(x = Structure, y = Percentage, fill = Race)) + geom_bar(stat="identity",position = position_dodge(width = 0.75), width=0.6)
+
+gg2 + scale_fill_brewer(palette = 1)
 ```
 
 #### Education at a Glance - OECD: 2015
@@ -97,7 +98,6 @@ res3$Change <- res3$Change - 100
 # res$Structure <- factor(res$Structure, levels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"), labels = c("All children living with a parent", "Children with two married parents", "Children with a single mother","Children with a single father"))
 gg <- ggplot(res3, aes(x = Change, y = Expenditure)) + geom_point(shape = 23, color = "blue", size = 2) +
           geom_smooth(method=lm, se=FALSE,linetype = "dashed", color = "black")
-gg + theme1
 ```
 
 ```{r tweenr}
