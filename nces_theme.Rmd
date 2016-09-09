@@ -17,6 +17,7 @@ library(lubridate)
 library(tweenr)
 library(gganimate) # devtools::install_github("dgrtwo/gganimate")
 library(animation)
+library(ggrepel)
 dest2 <- file.path(tempdir(), "open-sans.regular.ttf")
 download.file("http://ff.static.1001fonts.net/o/p/open-sans.regular.ttf", dest2, mode = "wb")
 font.add("regular", regular = dest2)
@@ -44,6 +45,7 @@ colnames(res) <- c('Race', '1997', '1999','2001','2003','2006','2007','2010','20
 res <- res %>% gather(Race, key= "Year")
 colnames(res)[3] <- "Value"
 res$Race <- as.factor(unique(res$Race))
+res$Race <- factor(res$Race, levels = c("White","Black", "Hispanic", "Asian/Pacific Islander", "American Indian/Alaska Native"), labels = c("White","Black", "Hispanic", "Asian/Pacific Islander", "American Indian/Alaska Native"))
 res$Year <- as.Date(res$Year,"%Y")
 # res$Year <- as.POSIXct(res$Year, origin="1970-01-01")
 
@@ -112,9 +114,12 @@ my.list2<-lapply(states2,myf)
 
 # Apply tweenr:
 
-tf <- tween_states(my.list2, tweenlength= 2, statelength=3, ease="linear",nframes=200)
+tf <- tween_states(my.list2, tweenlength= 3, statelength=0, ease='cubic-in-out',nframes=200)
 tf$Race <- as.factor(unique(tf$Race))
 tf$Year <- as.Date(tf$Year,"%Y")
+# tf <- tween_states(my.list2, tweenlength= 2, statelength=0, ease='cubic-in-out',nframes=200)
+# tf$Race <- as.factor(unique(tf$Race))
+# tf$Year <- as.Date(tf$Year,"%Y")
 # tf$Year <- as.POSIXct(tf$Year, origin="1970-01-01")
 # dtf<-data.frame(tf)
 # 
@@ -158,12 +163,25 @@ opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.show = "anima
 ```
 
 ```{r ex}
+tf$RaceLabel <- as.character(tf$Race)
 
-gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) 
+gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) + 
+  geom_text_repel(
+    aes(
+      label = RaceLabel
+    ),
+    size = 4,
+    box.padding = unit(0.5, 'lines'),
+    point.padding = unit(0.5, 'lines'),
+    segment.color = '#555555',
+    segment.size = 0.5,
+    force = 1
+  )
 
 # gg <- gg + theme_minimal(base_family="work")
 gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculatedper 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
 
+gg
 ```
 
 ```{r themes}
@@ -254,5 +272,5 @@ gg + theme_gray
 ```
 
 ```{r gganimate, eval = FALSE}
-gg_animate(gg,"line_tween.gif", interval = .05,pause = .05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+gg_animate(gg,interval = .05, pause=0.05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
 ```
