@@ -114,7 +114,7 @@ my.list2<-lapply(states2,myf)
 
 # Apply tweenr:
 
-tf <- tween_states(my.list2, tweenlength= 3, statelength=0, ease='cubic-in-out',nframes=200)
+tf <- tween_states(my.list2, tweenlength= 1, statelength=0, ease='cubic-in-out',nframes=200)
 tf$Race <- as.factor(unique(tf$Race))
 tf$Year <- as.Date(tf$Year,"%Y")
 # tf <- tween_states(my.list2, tweenlength= 2, statelength=0, ease='cubic-in-out',nframes=200)
@@ -166,16 +166,22 @@ opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.show = "anima
 tf$RaceLabel <- as.character(tf$Race)
 
 gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) + 
-  geom_text_repel(
+  # geom_text_repel(
+  #   aes(
+  #     label = RaceLabel
+  #   ),
+  #   size = 4,
+  #   box.padding = unit(0.5, 'lines'),
+  #   point.padding = unit(0.5, 'lines'),
+  #   segment.color = '#555555',
+  #   segment.size = 0.5,
+  #   force = 1
+  # )
+  geom_text(
     aes(
       label = RaceLabel
     ),
-    size = 4,
-    box.padding = unit(0.5, 'lines'),
-    point.padding = unit(0.5, 'lines'),
-    segment.color = '#555555',
-    segment.size = 0.5,
-    force = 1
+    size = 4
   )
 
 # gg <- gg + theme_minimal(base_family="work")
@@ -272,5 +278,5 @@ gg + theme_gray
 ```
 
 ```{r gganimate, eval = FALSE}
-gg_animate(gg,interval = .05, pause=0.05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+gg_animate(gg,"label_line.gif",interval = .05, pause=0.05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
 ```
