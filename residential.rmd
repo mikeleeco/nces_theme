@@ -1,0 +1,110 @@
+---
+title: "nces_themes"
+author: "Michael Lee"
+date: "August 23, 2016"
+output: html_document
+---
+<br>
+
+
+```{r setup}
+library(ggplot2) # devtools::install_github("hadley/ggplot2")
+library(scales)
+library(tidyr)
+library(showtext)
+library(dplyr)
+library(lubridate)
+library(tweenr)
+library(gganimate) # devtools::install_github("dgrtwo/gganimate")
+library(animation)
+library(ggrepel)
+
+
+# setwd("G:/nces_theme")
+res <- read.csv("residential.csv",stringsAsFactors = FALSE)
+colnames(res) <- c('Race', '1997', '1999','2001','2003','2006','2007','2010','2011','2013')
+res <- res %>% gather(Race, key= "Year")
+colnames(res)[3] <- "Value"
+res$Race <- as.factor(unique(res$Race))
+res$Race <- factor(res$Race, levels = c("White","Black", "Hispanic", "Asian/Pacific Islander", "American Indian/Alaska Native"), labels = c("White","Black", "Hispanic", "Asian/\nPacific Islander", "American Indian/\nAlaska Native"))
+res$Year <- as.Date(res$Year,"%Y")
+# res$Year <- as.POSIXct(res$Year, origin="1970-01-01")
+
+#add the "US" at the top and the bottomw of the list of states 
+states2<-factor(unique((res$Year)))
+
+# function to create list of data sets from our data (by state)
+myf<-function(mystate){as.data.frame(res[res$Year==as.Date(mystate),])}
+
+# use lapply to generate the list of data sets:
+my.list2<-lapply(states2,myf)
+
+# Apply tweenr:
+
+tf <- tween_states(my.list2, tweenlength= 1, statelength=0, ease='cubic-in-out',nframes=200)
+tf$Race <- as.factor(unique(tf$Race))
+tf$Year <- as.Date(tf$Year,"%Y")
+# tf <- tween_states(my.list2, tweenlength= 2, statelength=0, ease='cubic-in-out',nframes=200)
+# tf$Race <- as.factor(unique(tf$Race))
+# tf$Year <- as.Date(tf$Year,"%Y")
+# tf$Year <- as.POSIXct(tf$Year, origin="1970-01-01")
+# dtf<-data.frame(tf)
+# 
+# gg <- ggplot(tf, aes(x = Year, y = Value, color=Race,group=Race,frame=.frame)) + geom_line(aes(group=Race, color=Race)) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year))
+# 
+# gg_animate(gg, title_frame = F, ani.width = 600, ani.height = 450, interval=0.05)
+
+tf$RaceLabel <- as.character(tf$Race)
+
+gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel, linetype=Race), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year),limits =as.Date(c("1997-01-11", "2015-01-01"))) + scale_linetype_manual(values = c(2,3,1,1,1)) +
+  scale_y_continuous(labels=c(0,200,400,600,800,1000), breaks=c(0,200,400,600,800,1000)) +
+  # geom_text_repel(
+  #   aes(
+  #     label = RaceLabel
+  #   ),
+  #   size = 4,
+  #   box.padding = unit(0.5, 'lines'),
+  #   point.padding = unit(0.5, 'lines'),
+  #   segment.color = '#555555',
+  #   segment.size = 0.5,
+  #   force = 1
+  # )
+  geom_text(
+    aes(
+      label = RaceLabel
+    ),
+    size = 4 , nudge_y = 0 ,nudge_x=400
+  )
+# gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel), size=1.25) + scale_x_date(labels=year(c(unique(res$Year),as.Date("2015-09-12"))), breaks=c(unique(res$Year),as.Date("2015-09-12")), limits =as.Date(c("1997-09-12"), "2015-09-12"))
+
+# gg <- gg + theme_minimal(base_family="work")
+gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per\n100,000 juveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculated per 100,000 persons age 10 through the upper age at which offenders were under original jurisdiction\nof the juvenile courts in each state in the given year. Data are from a biennial survey of all secure and nonsecure residential placement facilities that\nhouse juvenile offenders. Data do not include adult prisons, jails, federal facilities, or facilities exclusively for drug or mental health treatment or for\nabused or neglected youth. The data provide 1-day population counts of juveniles in residential placement facilities.\nSOURCE: U.S. Department of Justice, Office of Juvenile Justice and Delinquency Prevention, Census of Juveniles in Residential Placement\n(CJRP), retrieved October 20, 2015, from http://www.ojjdp.gov/ojstatbb/ezacjrp/.", subtitle = "Rate per 100,000 juveniles")
+
+theme_white <- theme(text=element_text(family="sans"),
+                panel.background=element_blank(),
+                panel.grid.major.y=element_line(color="gray", linetype="dashed"),
+                panel.grid.major.x=element_blank(),
+                panel.grid.minor.x=element_blank(),
+                panel.grid.minor.y=element_blank(),
+                axis.title.y = element_blank(),
+                axis.title.x = element_text(size=14),
+                # axis.line.x=element_line(color="black"),
+                # axis.line.y=element_line(color="black"),
+                axis.text.x=element_text(size=12),
+                axis.text.y=element_text(size=12),
+                axis.ticks.x=element_line(),
+                axis.ticks.y=element_blank(),
+                # axis.ticks.length=unit(5, "pt"),
+                # plot.margin=unit(rep(0.5, 4), "cm"),
+                # axis.text.y=element_text(margin=margin(r=-5)),
+                axis.text.x=element_text(family="sans",size=14),
+                plot.title=element_text(family="sans",size=18,face = "bold"),
+                plot.subtitle=element_text(family="sans",size=12, margin = margin(t=15)),
+                plot.caption=element_text(size=12, hjust=0, margin=margin(t=15),lineheight=1.15),
+                legend.position="none"
+                )
+# black, native, hisp
+my_palette = c( "#007934","#86BA96","#86BA96","#B6D7C0",  "#007934")
+gg2 <- gg + theme_white + scale_color_manual(values=my_palette)
+gg_animate(gg2,"line_graph_residential.gif",interval = .05, pause=0.05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+```

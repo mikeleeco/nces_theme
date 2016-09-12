@@ -66,7 +66,6 @@ theme1 <- theme(text=element_text(family="work"),
                  # axis.line.x=element_blank(),
                  # axis.text=element_text(family="work"),
                  axis.ticks=element_line(),
-                 axis.ticks.x=element_blank(),
                  axis.ticks.y=element_blank(),
                  # axis.ticks.length=unit(5, "pt"),
                  plot.margin=unit(rep(0.5, 4), "cm"),
@@ -165,7 +164,7 @@ opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE, fig.show = "anima
 ```{r ex}
 tf$RaceLabel <- as.character(tf$Race)
 
-gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year)) + 
+gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel), size=1.25) + scale_x_date(labels=year(unique(res$Year)), breaks=unique(res$Year),limits =as.Date(c("1996-09-12", "2014-09-13"))) + 
   # geom_text_repel(
   #   aes(
   #     label = RaceLabel
@@ -183,6 +182,7 @@ gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=R
     ),
     size = 4, nudge_x=-7.5, nudge_y = -30
   )
+# gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=Race, color=Race, cumulative = TRUE, label=RaceLabel), size=1.25) + scale_x_date(labels=year(c(unique(res$Year),as.Date("2015-09-12"))), breaks=c(unique(res$Year),as.Date("2015-09-12")), limits =as.Date(c("1997-09-12"), "2015-09-12"))
 
 # gg <- gg + theme_minimal(base_family="work")
 gg <- gg + labs(x="Year", y="Rate per 100,000 juveniles", title = "Residential placement rate (number of juvenile offenders in residential facilities) per 100,000\njuveniles, by race/ethnicity: Selected years, 1997 through 2013", caption = "NOTE: Residential placement rate calculatedper 100,000 persons age 10 through the upper age at which offenders were under original\njurisdiction of the juvenile courts in each state in the given year.")
@@ -200,7 +200,6 @@ theme_white <- theme(text=element_text(family="work"),
                 # axis.line=element_line(),
                 # axis.line.x=element_blank(),
                 # axis.text=element_text(family="work"),
-                axis.ticks=element_line(),
                 axis.ticks.x=element_blank(),
                 axis.ticks.y=element_blank(),
                 # axis.ticks.length=unit(5, "pt"),
