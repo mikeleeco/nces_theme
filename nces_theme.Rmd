@@ -181,7 +181,7 @@ gg <- ggplot(tf, aes(x = Year, y = Value, frame = Year)) + geom_line(aes(group=R
     aes(
       label = RaceLabel
     ),
-    size = 4
+    size = 4, nudge_x=-7.5, nudge_y = -30
   )
 
 # gg <- gg + theme_minimal(base_family="work")
@@ -278,5 +278,5 @@ gg + theme_gray
 ```
 
 ```{r gganimate, eval = FALSE}
-gg_animate(gg,"label_line.gif",interval = .05, pause=0.05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
+gg_animate(gg,"label_line_nudge.gif",interval = .05, pause=0.05, ani.width = 1200, ani.height = 650, title_frame = FALSE)
 ```
